@@ -2,16 +2,15 @@ use std::collections::HashSet;
 
 use crate::parsers::facebook::{get_counts, FacebookMessage, FacebookMessenger};
 
-use plotly::Bar;
-use plotly::Histogram;
-
-use plotly::Plot;
+use plotly::common::Title;
+use plotly::{Bar, Histogram, Layout, Plot};
 
 use leptos::html::Input;
 use leptos::{
     component, create_action, create_node_ref, create_resource, create_signal, logging, view, For,
     IntoView, SignalGet, Suspense,
 };
+
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{File, SubmitEvent};
 
@@ -30,6 +29,11 @@ fn get_plots(messages: Vec<FacebookMessage>, participants: HashSet<String>) -> (
         )
     }
 
+    let msg_and_reaction_layout =
+        Layout::new().title(Title::new("Messages and reactions per participants"));
+
+    msg_and_reaction_plot.set_layout(msg_and_reaction_layout);
+
     let mut date_plot = Plot::new();
     for (name, dates) in date_count.iter() {
         date_plot.add_trace(
@@ -39,6 +43,10 @@ fn get_plots(messages: Vec<FacebookMessage>, participants: HashSet<String>) -> (
                 .name(name),
         );
     }
+    let date_layout = Layout::new().title(Title::new(
+        "Average number of messages per hour of the day.",
+    ));
+    date_plot.set_layout(date_layout);
 
     return (date_plot, msg_and_reaction_plot);
 }
@@ -64,10 +72,12 @@ fn MessengerData(data: Option<Vec<String>>) -> impl IntoView {
                     let input = input.to_owned();
                     async move { plotly::bindings::new_plot("DatePlot", &input).await }
                 });
+
                 let msg_plotted = create_action(|input: &Plot| {
                     let input = input.to_owned();
                     async move { plotly::bindings::new_plot("MsgPlot", &input).await }
                 });
+
                 let (msg_plot, date_plot) = get_plots(messages, participants);
 
                 date_plotted.dispatch(date_plot);

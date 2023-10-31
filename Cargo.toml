@@ -3,12 +3,6 @@ name = "msg"
 version = "0.1.0"
 edition = "2021"
 
-[build]
-target = "wasm32-unknown-unknown"
-
-# [lib]
-# crate-type = ["cdylib", "rlib"]
-
 [dependencies]
 regex = { version = "1.10.2", features = ["pattern"] }
 clap = { version = "4.4.7", features = ["derive"] }
@@ -27,16 +21,16 @@ web-sys = { version = "0.3.64", features = [
 wasm-bindgen-futures = "0.4.37"
 js-sys = "0.3.64"
 
-[profile.release]
-opt-level = 'z'
-lto = true
-codegen-units = 1
-
-[profile.wasm-release]
-inherits = "release"
-opt-level = 'z'
-lto = true
-codegen-units = 1
-
-[package.metadata.leptos]
-lib-profile-release = "wasm-release"
+# [profile.release]
+# opt-level = 'z'
+# lto = true
+# codegen-units = 1
+#
+# [profile.wasm-release]
+# inherits = "release"
+# opt-level = 'z'
+# lto = true
+# codegen-units = 1
+#
+# [package.metadata.leptos]
+# lib-profile-release = "wasm-release"
