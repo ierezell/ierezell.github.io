@@ -2,6 +2,7 @@
 name = "msg"
 version = "0.1.0"
 edition = "2021"
+default-run = "web"
 
 [dependencies]
 regex = { version = "1.10.2", features = ["pattern"] }
@@ -25,16 +26,27 @@ stylers = { git = "https://github.com/abishekatp/stylers" }
 [build-dependencies]
 stylers = { git = "https://github.com/abishekatp/stylers" }
 
-# [profile.release]
-# opt-level = 'z'
-# lto = true
-# codegen-units = 1
-#
-# [profile.wasm-release]
-# inherits = "release"
-# opt-level = 'z'
-# lto = true
-# codegen-units = 1
-#
-# [package.metadata.leptos]
-# lib-profile-release = "wasm-release"
+[profile.release]
+opt-level = 'z'
+lto = true
+codegen-units = 1
+
+[profile.wasm-release]
+inherits = "release"
+opt-level = 'z'
+lto = true
+codegen-units = 1
+
+[package.metadata.leptos]
+lib-profile-release = "wasm-release"
+
+[[bin]]
+name = 'cli'
+test = false
+bench = false
+
+[[bin]]
+name = 'web'
+path = 'src/bin/server.rs'
+test = false
+bench = false

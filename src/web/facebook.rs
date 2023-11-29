@@ -1,6 +1,6 @@
-use std::collections::HashSet;
-
-use crate::parsers::facebook::{FacebookMessage, FacebookMessenger};
+use crate::parsers::facebook::{
+    get_message_counts, get_reactions_counts, get_send_dates, message_parser,
+};
 
 use plotly::Plot;
 
@@ -10,7 +10,7 @@ use leptos::{
     IntoView, SignalGet, Suspense,
 };
 
-use crate::web::plots::facebook::{
+use crate::plots::facebook::{
     get_date_plot, get_message_count_plot, get_reaction_count_plot, get_response_time_plot,
 };
 use wasm_bindgen_futures::JsFuture;
@@ -18,54 +18,41 @@ use web_sys::{File, SubmitEvent};
 
 #[component]
 fn MessengerData(data: Option<Vec<String>>) -> impl IntoView {
-    let mut messages: Vec<FacebookMessage> = vec![];
-    let mut participants: HashSet<String> = HashSet::new();
+    // let mut messages: Vec<FacebookMessage> = vec![];
+    // let mut participants: HashSet<String> = HashSet::new();
     match data {
         Some(facebook_data) => {
-            if facebook_data.len() > 0 {
-                for d in facebook_data.iter() {
-                    let fb: FacebookMessenger =
-                        serde_json::from_str(d).expect("Unable to create facebook object");
-                    messages.extend(fb.messages);
+            let (messages, participants) = message_parser(facebook_data);
+            let date_plotted = create_action(|input: &Plot| {
+                let input = input.to_owned();
+                async move { plotly::bindings::new_plot("DatePlot", &input).await }
+            });
 
-                    for p in fb.participants {
-                        participants.insert(p.name);
-                    }
-                }
-                messages.sort_by(|a, b| a.timestamp_ms.cmp(&b.timestamp_ms));
+            let msg_plotted = create_action(|input: &Plot| {
+                let input = input.to_owned();
+                async move { plotly::bindings::new_plot("MsgPlot", &input).await }
+            });
 
-                let date_plotted = create_action(|input: &Plot| {
-                    let input = input.to_owned();
-                    async move { plotly::bindings::new_plot("DatePlot", &input).await }
-                });
+            let reaction_plotted = create_action(|input: &Plot| {
+                let input = input.to_owned();
+                async move { plotly::bindings::new_plot("ReactionPlot", &input).await }
+            });
 
-                let msg_plotted = create_action(|input: &Plot| {
-                    let input = input.to_owned();
-                    async move { plotly::bindings::new_plot("MsgPlot", &input).await }
-                });
+            let responses_time_plotted = create_action(|input: &Plot| {
+                let input = input.to_owned();
+                async move { plotly::bindings::new_plot("ResponsesTimePlot", &input).await }
+            });
 
-                let reaction_plotted = create_action(|input: &Plot| {
-                    let input = input.to_owned();
-                    async move { plotly::bindings::new_plot("ReactionPlot", &input).await }
-                });
+            let msg_plot = get_message_count_plot(&get_message_counts(&messages));
+            let reaction_plot = get_reaction_count_plot(&get_reactions_counts(&messages));
+            let date_plot = get_date_plot(&get_send_dates(&messages, &participants));
+            let responses_time_plot = get_response_time_plot(&messages, &participants);
 
-                let responses_time_plotted = create_action(|input: &Plot| {
-                    let input = input.to_owned();
-                    async move { plotly::bindings::new_plot("ResponsesTimePlot", &input).await }
-                });
-
-                let msg_plot = get_message_count_plot(&messages);
-                let reaction_plot = get_reaction_count_plot(&messages);
-                let date_plot = get_date_plot(&messages, &participants);
-                let responses_time_plot = get_response_time_plot(&messages, &participants);
-
-                date_plotted.dispatch(date_plot);
-                reaction_plotted.dispatch(reaction_plot);
-                msg_plotted.dispatch(msg_plot);
-                responses_time_plotted.dispatch(responses_time_plot);
-            }
+            date_plotted.dispatch(date_plot);
+            reaction_plotted.dispatch(reaction_plot);
+            msg_plotted.dispatch(msg_plot);
+            responses_time_plotted.dispatch(responses_time_plot);
         }
-
         _ => {}
     }
 

@@ -137,3 +137,22 @@ pub fn get_message_response_times(
 
     return response_times;
 }
+
+pub fn message_parser(files: Vec<String>) -> (Vec<FacebookMessage>, HashSet<std::string::String>) {
+    let mut messages: Vec<FacebookMessage> = vec![];
+    let mut participants: HashSet<String> = HashSet::new();
+
+    for file_content in files.iter() {
+        let fb: FacebookMessenger =
+            serde_json::from_str(file_content).expect("Unable to create facebook object");
+        messages.extend(fb.messages);
+
+        for p in fb.participants {
+            participants.insert(p.name);
+        }
+    }
+
+    messages.sort_by(|a, b| a.timestamp_ms.cmp(&b.timestamp_ms));
+
+    return (messages, participants);
+}
