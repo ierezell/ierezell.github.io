@@ -1,9 +1,8 @@
 use std::collections::HashSet;
 
-use crate::parsers::facebook::{get_counts, FacebookMessage, FacebookMessenger};
+use crate::parsers::facebook::{FacebookMessage, FacebookMessenger};
 
-use plotly::common::Title;
-use plotly::{Bar, Histogram, Layout, Plot};
+use plotly::Plot;
 
 use leptos::html::Input;
 use leptos::{
@@ -11,45 +10,11 @@ use leptos::{
     IntoView, SignalGet, Suspense,
 };
 
+use crate::web::plots::facebook::{
+    get_date_plot, get_message_count_plot, get_reaction_count_plot, get_response_time_plot,
+};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{File, SubmitEvent};
-
-fn get_plots(messages: Vec<FacebookMessage>, participants: HashSet<String>) -> (Plot, Plot) {
-    let (msg_count, reaction_count, date_count) = get_counts(&messages, &participants);
-
-    let mut msg_and_reaction_plot = Plot::new();
-
-    for name in msg_count.keys() {
-        msg_and_reaction_plot.add_trace(
-            Bar::new(
-                ["Messages", "Reaction"].to_vec(),
-                [msg_count[&name.clone()], reaction_count[&name.clone()]].to_vec(),
-            )
-            .name(name),
-        )
-    }
-
-    let msg_and_reaction_layout =
-        Layout::new().title(Title::new("Messages and reactions per participants"));
-
-    msg_and_reaction_plot.set_layout(msg_and_reaction_layout);
-
-    let mut date_plot = Plot::new();
-    for (name, dates) in date_count.iter() {
-        date_plot.add_trace(
-            Histogram::new(dates.to_vec())
-                .x_axis("Hour")
-                .y_axis("Count")
-                .name(name),
-        );
-    }
-    let date_layout = Layout::new().title(Title::new(
-        "Average number of messages per hour of the day.",
-    ));
-    date_plot.set_layout(date_layout);
-
-    return (date_plot, msg_and_reaction_plot);
-}
 
 #[component]
 fn MessengerData(data: Option<Vec<String>>) -> impl IntoView {
@@ -67,6 +32,7 @@ fn MessengerData(data: Option<Vec<String>>) -> impl IntoView {
                         participants.insert(p.name);
                     }
                 }
+                messages.sort_by(|a, b| a.timestamp_ms.cmp(&b.timestamp_ms));
 
                 let date_plotted = create_action(|input: &Plot| {
                     let input = input.to_owned();
@@ -78,10 +44,25 @@ fn MessengerData(data: Option<Vec<String>>) -> impl IntoView {
                     async move { plotly::bindings::new_plot("MsgPlot", &input).await }
                 });
 
-                let (msg_plot, date_plot) = get_plots(messages, participants);
+                let reaction_plotted = create_action(|input: &Plot| {
+                    let input = input.to_owned();
+                    async move { plotly::bindings::new_plot("ReactionPlot", &input).await }
+                });
+
+                let responses_time_plotted = create_action(|input: &Plot| {
+                    let input = input.to_owned();
+                    async move { plotly::bindings::new_plot("ResponsesTimePlot", &input).await }
+                });
+
+                let msg_plot = get_message_count_plot(&messages);
+                let reaction_plot = get_reaction_count_plot(&messages);
+                let date_plot = get_date_plot(&messages, &participants);
+                let responses_time_plot = get_response_time_plot(&messages, &participants);
 
                 date_plotted.dispatch(date_plot);
+                reaction_plotted.dispatch(reaction_plot);
                 msg_plotted.dispatch(msg_plot);
+                responses_time_plotted.dispatch(responses_time_plot);
             }
         }
 
@@ -92,6 +73,8 @@ fn MessengerData(data: Option<Vec<String>>) -> impl IntoView {
         <div>
             <div id="DatePlot"></div>
             <div id="MsgPlot"></div>
+            <div id="ReactionPlot"></div>
+            <div id="ResponsesTimePlot"></div>
         </div>
     }
 }

@@ -29,7 +29,7 @@ struct FacebookPhoto {
 #[derive(Serialize, Deserialize)]
 pub struct FacebookMessage {
     sender_name: String,
-    timestamp_ms: i64,
+    pub timestamp_ms: i64,
     content: Option<String>,
     photos: Option<Vec<FacebookPhoto>>,
     reactions: Option<Vec<FacebookReaction>>,
@@ -48,21 +48,8 @@ pub struct FacebookMessenger {
     pub messages: Vec<FacebookMessage>,
 }
 
-pub fn get_counts(
-    messages: &Vec<FacebookMessage>,
-    participants: &HashSet<String>,
-) -> (
-    HashMap<String, i32>,
-    HashMap<String, i32>,
-    HashMap<String, Vec<u32>>,
-) {
+pub fn get_message_counts(messages: &Vec<FacebookMessage>) -> HashMap<String, i32> {
     let mut msg_count: HashMap<String, i32> = HashMap::new();
-    let mut reaction_count = HashMap::new();
-    let mut date_count: HashMap<String, Vec<u32>> = HashMap::new();
-    for p in participants {
-        date_count.insert(p.to_string(), vec![]);
-    }
-
     for msg in messages {
         let sender = msg.sender_name.clone();
         match msg_count.get(&sender) {
@@ -73,12 +60,39 @@ pub fn get_counts(
                 msg_count.insert(sender.to_string(), 1);
             }
         }
+    }
 
-        if let Some(dates_for_user) = date_count.get_mut(&sender) {
+    return msg_count;
+}
+
+pub fn get_send_dates(
+    messages: &Vec<FacebookMessage>,
+    participants: &HashSet<String>,
+) -> HashMap<String, Vec<u32>> {
+    let mut message_dates: HashMap<String, Vec<u32>> = HashMap::new();
+    for p in participants {
+        message_dates.insert(p.to_string(), vec![]);
+    }
+
+    for msg in messages {
+        let sender = msg.sender_name.clone();
+
+        if let Some(dates_for_user) = message_dates.get_mut(&sender) {
             if let Some(datetime) = NaiveDateTime::from_timestamp_millis(msg.timestamp_ms) {
                 dates_for_user.push(datetime.hour());
             }
         }
+    }
+
+    return message_dates;
+}
+
+pub fn get_reactions_counts(messages: &Vec<FacebookMessage>) -> HashMap<String, i32> {
+    // HashMap<String, HashMap<String, i32>> (per person per reaction)
+    let mut reaction_count = HashMap::new();
+
+    for msg in messages {
+        let sender = msg.sender_name.clone();
 
         if let Some(reactions) = &msg.reactions {
             for reaction in reactions {
@@ -96,42 +110,30 @@ pub fn get_counts(
         }
     }
 
-    return (msg_count, reaction_count, date_count);
+    return reaction_count;
 }
 
-// use std::path::{Path, PathBuf};
-// pub fn friend_msg_finder(folder: &String, name: &str) -> Vec<PathBuf> {
-//     let mut correct_path: Vec<PathBuf> = [].to_vec();
+pub fn get_message_response_times(
+    messages: &Vec<FacebookMessage>,
+    participants: &HashSet<String>,
+) -> HashMap<String, Vec<i64>> {
+    let mut response_times: HashMap<String, Vec<i64>> = HashMap::new();
 
-//     let files_path = Path::new(folder);
-//     let paths = files_path.read_dir().expect("Couldn't read directory");
+    for p in participants {
+        response_times.insert(p.to_string(), vec![]);
+    }
 
-//     for folder_path in paths {
-//         let friend_path = folder_path
-//             .expect("Cannot read file")
-//             .file_name()
-//             .to_str()
-//             .expect("Cannot read file")
-//             .to_owned();
+    let mut messages_iter = messages.iter().peekable();
 
-//         let absolute = files_path.join(friend_path.clone());
+    while let Some(msg) = messages_iter.next() {
+        if let Some(next_msg) = messages_iter.peek() {
+            if next_msg.sender_name != msg.sender_name {
+                if let Some(sender_response_times) = response_times.get_mut(&next_msg.sender_name) {
+                    sender_response_times.push((next_msg.timestamp_ms - msg.timestamp_ms) / 1000);
+                }
+            }
+        }
+    }
 
-//         if friend_path.contains(name) {
-//             let mut mes_idx: i32 = 1;
-//             loop {
-//                 let msg_json_path = absolute.join(format!("message_{mes_idx}.json").as_str());
-
-//                 println!("Friend path {:?} ", msg_json_path);
-//                 if msg_json_path.exists() {
-//                     mes_idx += 1;
-//                     println!("{:?} ", msg_json_path);
-//                     correct_path.push(msg_json_path);
-//                 } else {
-//                     break;
-//                 }
-//             }
-//             break;
-//         }
-//     }
-//     return correct_path;
-// }
+    return response_times;
+}
