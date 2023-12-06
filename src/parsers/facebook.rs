@@ -156,3 +156,29 @@ pub fn message_parser(files: Vec<String>) -> (Vec<FacebookMessage>, HashSet<std:
 
     return (messages, participants);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::message_parser;
+    use std::fs::read_to_string;
+
+    #[test]
+    fn test_message_numbers() {
+        let (messages, participants) = message_parser(vec![read_to_string(String::from(
+            "./tests/assets/test_message_numbers.json",
+        ))
+        .unwrap()]);
+        assert_eq!(messages.len(), 9519);
+        assert_eq!(participants.len(), 2);
+    }
+
+    #[test]
+    fn test_message_numbers_2() {
+        let (messages, participants) = message_parser(vec![read_to_string(String::from(
+            "./tests/assets/test_message_numbers_2.json",
+        ))
+        .unwrap()]);
+        assert_eq!(messages.len(), 16);
+        assert_eq!(participants.len(), 2);
+    }
+}

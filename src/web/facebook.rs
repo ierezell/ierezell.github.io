@@ -1,5 +1,6 @@
 use crate::parsers::facebook::{
-    get_message_counts, get_reactions_counts, get_send_dates, message_parser,
+    get_message_counts, get_message_response_times, get_reactions_counts, get_send_dates,
+    message_parser,
 };
 
 use plotly::Plot;
@@ -46,7 +47,8 @@ fn MessengerData(data: Option<Vec<String>>) -> impl IntoView {
             let msg_plot = get_message_count_plot(&get_message_counts(&messages));
             let reaction_plot = get_reaction_count_plot(&get_reactions_counts(&messages));
             let date_plot = get_date_plot(&get_send_dates(&messages, &participants));
-            let responses_time_plot = get_response_time_plot(&messages, &participants);
+            let responses_time_plot =
+                get_response_time_plot(&get_message_response_times(&messages, &participants));
 
             date_plotted.dispatch(date_plot);
             reaction_plotted.dispatch(reaction_plot);

@@ -18,8 +18,7 @@ pub fn App() -> impl IntoView {
         class=styler_class,
         <Router>
             <nav>
-                <A href="/facebook">Facebook</A>
-                <A href="/whatsapp">Whatsapp</A>
+                <A href="/">Home</A>
             </nav>
             <main>
                 <Routes>
