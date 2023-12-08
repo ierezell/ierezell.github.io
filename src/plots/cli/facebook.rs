@@ -7,6 +7,33 @@ use ratatui::widgets::{
     Block as RatatuiBlock, Borders as RatatuiBorders,
 };
 
+pub fn get_message_count_plot_cli(
+    messages_count: &HashMap<String, i32>,
+) -> RatatuiBarChart<'static> {
+    let mut bar_chart: RatatuiBarChart<'static> = RatatuiBarChart::default()
+        .block(
+            RatatuiBlock::default()
+                .title("Messages count")
+                .borders(RatatuiBorders::ALL),
+        )
+        .bar_width(6)
+        .bar_gap(2)
+        .group_gap(3)
+        .label_style(RatatuiStyle::new().white());
+
+    let mut bars = Vec::new();
+    for name in messages_count.keys() {
+        bars.push(
+            RatatuiBar::default()
+                .value(messages_count[name] as u64)
+                .label(format!("{} ", name).into()),
+        )
+    }
+
+    bar_chart = bar_chart.data(RatatuiBarGroup::default().bars(&bars));
+
+    return bar_chart;
+}
 pub fn get_response_time_plot_cli(
     responses_time: &HashMap<String, Vec<i64>>,
 ) -> RatatuiBarChart<'static> {

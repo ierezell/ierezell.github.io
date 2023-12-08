@@ -1,5 +1,5 @@
 use msg::plots::cli::facebook::get_response_time_plot_cli;
-use msg::plots::web::facebook::{get_date_plot, get_message_count_plot, get_reaction_count_plot};
+use msg::plots::web::facebook::{get_date_plot, get_reaction_count_plot};
 
 use std::fs::{create_dir_all, read_to_string, File};
 
@@ -31,6 +31,8 @@ pub struct CliArgs {
 }
 #[cfg(target_family = "unix")]
 pub fn main() {
+    use msg::plots::cli::facebook::get_message_count_plot_cli;
+
     let args = CliArgs::parse();
     match args.kind.as_str() {
         "facebook" => {
@@ -47,7 +49,7 @@ pub fn main() {
             let dates = facebook::get_send_dates(&messages, &participants);
             let responses_time = facebook::get_message_response_times(&messages, &participants);
 
-            let msg_plot = get_message_count_plot(&msg_count);
+            let msg_plot = get_message_count_plot_cli(&msg_count);
             let reaction_plot = get_reaction_count_plot(&reaction_count);
             let dates_plot = get_date_plot(&dates);
 
@@ -59,9 +61,13 @@ pub fn main() {
                 let area = frame.size();
                 frame.render_widget(responses_plot, area);
             });
+            let _ = terminal.draw(|frame| {
+                let area = frame.size();
+                frame.render_widget(msg_plot, area);
+            });
 
             create_dir_all(args.output.clone()).expect("Failed to create output directory");
-            msg_plot.write_html(format!("{}/{}", args.output, "msg_plot.html"));
+
             reaction_plot.write_html(format!("{}/{}", args.output, "reaction_plot.html"));
             dates_plot.write_html(format!("{}/{}", args.output, "dates.html"));
 
