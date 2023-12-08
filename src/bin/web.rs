@@ -1,4 +1,3 @@
-extern crate msg;
 use leptos::mount_to_body;
 
 use msg::web::app::App;

@@ -2,31 +2,38 @@
 name = "msg"
 version = "0.1.0"
 edition = "2021"
-default-run = "cli"
+default_run = "server"
 
 [dependencies]
 regex = { version = "1.10.2", features = ["pattern"] }
-clap = { version = "4.4.10", features = ["derive"] }
+clap = { version = "4.4.11", features = ["derive"] }
 serde = { version = "1.0.193", features = ["derive"] }
 serde_json = "1.0.108"
 chrono = "0.4.31"
 leptos = { version = "0.5.4", features = ["csr", "nightly", "template_macro"] }
 leptos_router = { version = "0.5.4", features = ["csr", "nightly"] }
 plotly = { version = "0.8.4", features = ["plotly_image", "wasm"] }
+wasm-bindgen-futures = "0.4.39"
+js-sys = "0.3.66"
+stylers = { git = "https://github.com/abishekatp/stylers" }
 web-sys = { version = "0.3.66", features = [
     "File",
     "FileList",
     "FileReader",
     "HtmlInputElement",
 ] }
-wasm-bindgen-futures = "0.4.39"
-js-sys = "0.3.66"
-stylers = { git = "https://github.com/abishekatp/stylers" }
+
+
+[target.'cfg(unix)'.dependencies]
 ratatui = "0.24.0"
 crossterm = "0.27.0"
 
 [build-dependencies]
 stylers = { git = "https://github.com/abishekatp/stylers" }
+
+[lib]
+name = "msg"
+path = "src/lib.rs"
 
 [profile.release]
 opt-level = 'z'
@@ -46,9 +53,16 @@ lib-profile-release = "wasm-release"
 name = 'cli'
 test = false
 bench = false
+# target = 'cfg(target_family = "unix"))'
 
 [[bin]]
 name = 'server'
 path = 'src/bin/server.rs'
+test = false
+bench = false
+
+[[bin]]
+name = 'web'
+path = 'src/bin/web.rs'
 test = false
 bench = false

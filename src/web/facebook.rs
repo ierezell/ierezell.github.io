@@ -11,7 +11,7 @@ use leptos::{
     IntoView, SignalGet, Suspense,
 };
 
-use crate::plots::facebook::{
+use crate::plots::web::facebook::{
     get_date_plot, get_message_count_plot, get_reaction_count_plot, get_response_time_plot,
 };
 use wasm_bindgen_futures::JsFuture;

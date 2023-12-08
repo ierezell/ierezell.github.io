@@ -1,2 +1,2 @@
-pub mod facebook;
-pub mod utils;
+pub mod cli;
+pub mod web;

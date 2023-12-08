@@ -1,7 +1,5 @@
-use msg::plots::facebook::get_date_plot;
-use msg::plots::facebook::get_message_count_plot;
-use msg::plots::facebook::get_reaction_count_plot;
-use msg::plots::facebook::get_response_time_plot_cli;
+use msg::plots::cli::facebook::get_response_time_plot_cli;
+use msg::plots::web::facebook::{get_date_plot, get_message_count_plot, get_reaction_count_plot};
 
 use std::fs::{create_dir_all, read_to_string, File};
 
@@ -9,6 +7,7 @@ use clap::Parser;
 use msg::parsers::facebook;
 use msg::parsers::file;
 
+#[cfg(target_family = "unix")]
 use ratatui::prelude::{CrosstermBackend, Terminal};
 
 use std::io::stdout;
@@ -30,7 +29,7 @@ pub struct CliArgs {
     #[arg(short, long)]
     output: String,
 }
-
+#[cfg(target_family = "unix")]
 pub fn main() {
     let args = CliArgs::parse();
     match args.kind.as_str() {
