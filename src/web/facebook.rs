@@ -1,5 +1,5 @@
 use crate::parsers::facebook::{
-    get_message_counts, get_message_response_times, get_reactions_counts, get_send_dates,
+    get_message_counts, get_message_response_times, get_reactions_counts, get_send_hours,
     message_parser,
 };
 
@@ -12,7 +12,7 @@ use leptos::{
 };
 
 use crate::plots::web::facebook::{
-    get_date_plot, get_message_count_plot, get_reaction_count_plot, get_response_time_plot,
+    get_hour_plot, get_message_count_plot, get_reaction_count_plot, get_response_time_plot,
 };
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{File, SubmitEvent};
@@ -24,9 +24,9 @@ fn MessengerData(data: Option<Vec<String>>) -> impl IntoView {
     match data {
         Some(facebook_data) => {
             let (messages, participants) = message_parser(facebook_data);
-            let date_plotted = create_action(|input: &Plot| {
+            let hour_plotted = create_action(|input: &Plot| {
                 let input = input.to_owned();
-                async move { plotly::bindings::new_plot("DatePlot", &input).await }
+                async move { plotly::bindings::new_plot("HourPlot", &input).await }
             });
 
             let msg_plotted = create_action(|input: &Plot| {
@@ -46,11 +46,11 @@ fn MessengerData(data: Option<Vec<String>>) -> impl IntoView {
 
             let msg_plot = get_message_count_plot(&get_message_counts(&messages));
             let reaction_plot = get_reaction_count_plot(&get_reactions_counts(&messages));
-            let date_plot = get_date_plot(&get_send_dates(&messages, &participants));
+            let hour_plot = get_hour_plot(&get_send_hours(&messages, &participants));
             let responses_time_plot =
                 get_response_time_plot(&get_message_response_times(&messages, &participants));
 
-            date_plotted.dispatch(date_plot);
+            hour_plotted.dispatch(hour_plot);
             reaction_plotted.dispatch(reaction_plot);
             msg_plotted.dispatch(msg_plot);
             responses_time_plotted.dispatch(responses_time_plot);
@@ -60,7 +60,7 @@ fn MessengerData(data: Option<Vec<String>>) -> impl IntoView {
 
     view! {
         <div>
-            <div id="DatePlot"></div>
+            <div id="HourPlot"></div>
             <div id="MsgPlot"></div>
             <div id="ReactionPlot"></div>
             <div id="ResponsesTimePlot"></div>

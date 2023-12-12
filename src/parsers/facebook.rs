@@ -65,26 +65,26 @@ pub fn get_message_counts(messages: &Vec<FacebookMessage>) -> HashMap<String, i3
     return msg_count;
 }
 
-pub fn get_send_dates(
+pub fn get_send_hours(
     messages: &Vec<FacebookMessage>,
     participants: &HashSet<String>,
 ) -> HashMap<String, Vec<u32>> {
-    let mut message_dates: HashMap<String, Vec<u32>> = HashMap::new();
+    let mut message_hours: HashMap<String, Vec<u32>> = HashMap::new();
     for p in participants {
-        message_dates.insert(p.to_string(), vec![]);
+        message_hours.insert(p.to_string(), vec![]);
     }
 
     for msg in messages {
         let sender = msg.sender_name.clone();
 
-        if let Some(dates_for_user) = message_dates.get_mut(&sender) {
+        if let Some(hours_for_user) = message_hours.get_mut(&sender) {
             if let Some(datetime) = NaiveDateTime::from_timestamp_millis(msg.timestamp_ms) {
-                dates_for_user.push(datetime.hour());
+                hours_for_user.push(datetime.hour());
             }
         }
     }
 
-    return message_dates;
+    return message_hours;
 }
 
 pub fn get_reactions_counts(messages: &Vec<FacebookMessage>) -> HashMap<String, i32> {
