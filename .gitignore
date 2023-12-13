@@ -8,6 +8,8 @@ Cargo.lock
 
 # Personal files for test
 *.json
+!.vscode/settings.json
+!.vscode/launch.json
 !tests/assets/*.json
 *.txt
 

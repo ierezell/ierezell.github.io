@@ -1,0 +1,37 @@
+{
+    "cSpell.words": [
+        "bindgen",
+        "crossterm",
+        "Crossterm",
+        "datetime",
+        "facebook",
+        "leptos",
+        "linux",
+        "peekable",
+        "plotly",
+        "ratatui",
+        "Ratatui",
+        "rustup",
+        "stddev",
+        "Timelike",
+        "whatsapp"
+    ],
+    "editor.fontFamily": "'Source Code Pro','Droid Sans Mono', 'monospace', monospace, 'Segoe UI Emoji'",
+    "crates.compatibleDecorator": "V ${version}",
+    "crates.errorDecorator": "X",
+    "crates.incompatibleDecorator": "X ${version}",
+    "crates.compatibleDecoratorCss": {
+        "color": "green"
+    },
+    "crates.errorDecoratorCss": {
+        "color": "blue"
+    },
+    "crates.incompatibleDecoratorCss": {
+        "color": "red"
+    },
+    "conventionalCommits.scopes": [
+        "Plots",
+        "Cli",
+        "repo"
+    ],
+}

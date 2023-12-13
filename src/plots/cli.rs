@@ -75,7 +75,11 @@ pub fn get_hour_plot_cli(hours: &HashMap<String, Vec<u32>>) -> RatatuiBarChart<'
     for (name, msg_hours) in hours.iter() {
         for h in msg_hours.iter() {
             let tree_map_for_name = all_values_per_participants.get_mut(name).expect("No name");
-            *tree_map_for_name.entry(*h).or_insert(0) += 1;
+            let _ = *tree_map_for_name
+                .entry(*h)
+                .and_modify(|curr| *curr += 1)
+                .or_insert(1);
+
             if h > &span_max {
                 span_max = *h;
             }
@@ -87,7 +91,7 @@ pub fn get_hour_plot_cli(hours: &HashMap<String, Vec<u32>>) -> RatatuiBarChart<'
 
     let span = span_max - span_min;
 
-    let num_buckets = 12; // 12 hours per day
+    let num_buckets = 24; // 24 hours per day
 
     let range = span + (span % num_buckets);
 
@@ -99,9 +103,9 @@ pub fn get_hour_plot_cli(hours: &HashMap<String, Vec<u32>>) -> RatatuiBarChart<'
                 .title("Hours")
                 .borders(RatatuiBorders::ALL),
         )
-        .bar_width(6)
-        .bar_gap(2)
-        .group_gap(3)
+        .bar_width(3)
+        .bar_gap(1)
+        .group_gap(1)
         .label_style(RatatuiStyle::new().white());
 
     for idx in 0..num_buckets {
@@ -139,7 +143,10 @@ pub fn get_response_time_plot_cli(
     for (name, times) in responses_time.iter() {
         for time in times.iter() {
             let tree_map_for_name = all_values_per_participants.get_mut(name).expect("No name");
-            *tree_map_for_name.entry(*time).or_insert(0) += 1;
+            let _ = *tree_map_for_name
+                .entry(*time)
+                .and_modify(|curr| *curr += 1)
+                .or_insert(1);
             if time > &span_max {
                 span_max = *time;
             }
