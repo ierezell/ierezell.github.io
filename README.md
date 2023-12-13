@@ -8,7 +8,7 @@
 rustup target add wasm32-unknown-unknown
 ```
 
-### Install the bundler
+### Install the bundler (<https://trunkrs.dev/#install>)
 
 ```sh
 cargo install trunk

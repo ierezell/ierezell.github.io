@@ -5,7 +5,7 @@ use crossterm::{
     ExecutableCommand,
 };
 use msg::parsers::{facebook, file};
-use msg::plots::cli::facebook::{
+use msg::plots::cli::{
     get_hour_plot_cli, get_message_count_plot_cli, get_reaction_count_plot_cli,
     get_response_time_plot_cli,
 };
