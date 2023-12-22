@@ -41,7 +41,7 @@ pub fn get_reaction_count_plot(reactions_count: &HashMap<String, i32>) -> Plot {
     return reaction_plot;
 }
 
-pub fn get_hour_plot(dates: &HashMap<String, Vec<u32>>) -> Plot {
+pub fn get_hour_plot(dates: &HashMap<String, Vec<i64>>) -> Plot {
     let mut date_plot = Plot::new();
 
     for (name, d) in dates.iter() {

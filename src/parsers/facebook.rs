@@ -68,8 +68,8 @@ pub fn get_message_counts(messages: &Vec<FacebookMessage>) -> HashMap<String, i3
 pub fn get_send_hours(
     messages: &Vec<FacebookMessage>,
     participants: &HashSet<String>,
-) -> HashMap<String, Vec<u32>> {
-    let mut message_hours: HashMap<String, Vec<u32>> = HashMap::new();
+) -> HashMap<String, Vec<i64>> {
+    let mut message_hours: HashMap<String, Vec<i64>> = HashMap::new();
     for p in participants {
         message_hours.insert(p.to_string(), vec![]);
     }
@@ -79,7 +79,7 @@ pub fn get_send_hours(
 
         if let Some(hours_for_user) = message_hours.get_mut(&sender) {
             if let Some(datetime) = NaiveDateTime::from_timestamp_millis(msg.timestamp_ms) {
-                hours_for_user.push(datetime.hour());
+                hours_for_user.push(datetime.hour() as i64);
             }
         }
     }

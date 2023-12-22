@@ -29,6 +29,7 @@
     "crates.incompatibleDecoratorCss": {
         "color": "red"
     },
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
     "conventionalCommits.scopes": [
         "Plots",
         "Cli",
