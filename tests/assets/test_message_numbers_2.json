@@ -1,0 +1,131 @@
+{
+  "participants": [
+    {
+      "name": "Participant_1"
+    },
+    {
+      "name": "Participant_2"
+    }
+  ],
+  "messages": [
+    {
+      "sender_name": "Participant_1",
+      "timestamp_ms": 1678101220141,
+      "content": "Some Content",
+      "reactions": [
+        {
+          "reaction": "Some reaction",
+          "actor": "Participant_2"
+        }
+      ]
+    },
+    {
+      "sender_name": "Participant_2",
+      "timestamp_ms": 1678100988477,
+      "content": "Some Content"
+    },
+    {
+      "sender_name": "Participant_1",
+      "timestamp_ms": 1678100951219,
+      "content": "Some Content",
+      "reactions": [
+        {
+          "reaction": "Some reaction",
+          "actor": "Participant_2"
+        }
+      ]
+    },
+    {
+      "sender_name": "Participant_2",
+      "timestamp_ms": 1678100868834,
+      "content": "Some Content"
+    },
+    {
+      "sender_name": "Participant_2",
+      "timestamp_ms": 1678100867259,
+      "content": "Some Content"
+    },
+    {
+      "sender_name": "Participant_2",
+      "timestamp_ms": 1678100837623,
+      "content": "Some Content"
+    },
+    {
+      "sender_name": "Participant_1",
+      "timestamp_ms": 1678100826716,
+      "content": "Some Content"
+    },
+    {
+      "sender_name": "Participant_2",
+      "timestamp_ms": 1678099672594,
+      "content": "Some Content"
+    },
+    {
+      "sender_name": "Participant_1",
+      "timestamp_ms": 1675778705288,
+      "content": "Some Content",
+      "reactions": [
+        {
+          "reaction": "Some reaction",
+          "actor": "Participant_2"
+        }
+      ]
+    },
+    {
+      "sender_name": "Participant_2",
+      "timestamp_ms": 1675776106970,
+      "content": "Some Content"
+    },
+    {
+      "sender_name": "Participant_2",
+      "timestamp_ms": 1675776076026,
+      "content": "Some Content"
+    },
+    {
+      "sender_name": "Participant_1",
+      "timestamp_ms": 1675774814604,
+      "audio_files": [
+        {
+          "uri": "Some Uri",
+          "creation_timestamp": 1675774808
+        }
+      ]
+    },
+    {
+      "sender_name": "Participant_1",
+      "timestamp_ms": 1672605131174,
+      "content": "Some Content",
+      "reactions": [
+        {
+          "reaction": "Some reaction",
+          "actor": "Participant_2"
+        }
+      ]
+    },
+    {
+      "sender_name": "Participant_2",
+      "timestamp_ms": 1672604999135,
+      "content": "Some Content"
+    },
+    {
+      "sender_name": "Participant_1",
+      "timestamp_ms": 1672604948690,
+      "content": "Some Content"
+    },
+    {
+      "sender_name": "Participant_2",
+      "timestamp_ms": 1672397204528,
+      "content": "Some Content",
+      "reactions": [
+        {
+          "reaction": "Some reaction",
+          "actor": "Participant_1"
+        }
+      ]
+    }
+  ],
+  "title": "Participant_1",
+  "is_still_participant": true,
+  "thread_path": "inbox/some_path",
+  "magic_words": []
+}
