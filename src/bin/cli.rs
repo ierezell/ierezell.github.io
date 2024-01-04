@@ -41,6 +41,7 @@ pub fn main() {
             let correct_paths = file::facebook_file_parser(&args.files, &args.name);
             let mut files_data = Vec::new();
             for file in correct_paths.iter() {
+                println!("Found {:?} file", file);
                 files_data.push(read_to_string(file).expect("Unable to read file"));
             }
             let (messages, participants) = facebook::message_parser(files_data);
@@ -53,7 +54,7 @@ pub fn main() {
 
             let msg_plot = get_message_count_plot_cli(&msg_count);
             let reaction_plot = get_reaction_count_plot_cli(&reaction_count);
-            let dates_plot = get_hour_plot_cli(&dates);
+            let hours_plot = get_hour_plot_cli(&dates);
             let responses_plot = get_response_time_plot_cli(&responses_time);
 
             stdout()
@@ -66,7 +67,7 @@ pub fn main() {
                 Terminal::new(CrosstermBackend::new(stdout())).expect("Failed to create terminal");
             terminal.clear().expect("Failed to clear terminal");
 
-            let tabs = Tabs::new(vec!["Response", "Message", "Reactions", "Dates"])
+            let tabs = Tabs::new(vec!["Response", "Message", "Reactions", "Hours"])
                 .block(Block::default().title("Tabs").borders(Borders::ALL))
                 .style(Style::default())
                 .highlight_style(Style::default())
@@ -83,10 +84,11 @@ pub fn main() {
 
                     frame.render_widget(tabs.clone(), layout[0]);
                     match tab_idx {
+                        // TODO : Maybe here compute the bar width from the frame size... ?
                         0 => frame.render_widget(responses_plot.clone(), layout[1]),
                         1 => frame.render_widget(msg_plot.clone(), layout[1]),
                         2 => frame.render_widget(reaction_plot.clone(), layout[1]),
-                        3 => frame.render_widget(dates_plot.clone(), layout[1]),
+                        3 => frame.render_widget(hours_plot.clone(), layout[1]),
                         _ => {}
                     }
                 });

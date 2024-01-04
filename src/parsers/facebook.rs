@@ -129,7 +129,14 @@ pub fn get_message_response_times(
         if let Some(next_msg) = messages_iter.peek() {
             if next_msg.sender_name != msg.sender_name {
                 if let Some(sender_response_times) = response_times.get_mut(&next_msg.sender_name) {
-                    sender_response_times.push((next_msg.timestamp_ms - msg.timestamp_ms) / 1000);
+                    let mut response_delta_in_seconds =
+                        (next_msg.timestamp_ms - msg.timestamp_ms) / 1000;
+
+                    if response_delta_in_seconds > 86400 {
+                        response_delta_in_seconds = 86400
+                    }
+
+                    sender_response_times.push(response_delta_in_seconds);
                 }
             }
         }

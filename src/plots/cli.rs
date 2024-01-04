@@ -43,9 +43,9 @@ fn get_histogram(data: &HashMap<String, Vec<i64>>, num_buckets: i64) -> RatatuiB
                 .title("Response time")
                 .borders(RatatuiBorders::ALL),
         )
-        .bar_width(6)
-        .bar_gap(2)
-        .group_gap(3)
+        .bar_width((80 / num_buckets).max(1) as u16)
+        .bar_gap((20 / num_buckets).max(1) as u16)
+        .group_gap((30 / num_buckets).max(1) as u16)
         .label_style(RatatuiStyle::new().white());
 
     for idx in 0..num_buckets {
@@ -82,7 +82,7 @@ pub fn get_message_count_plot_cli(
                 .title("Messages count")
                 .borders(RatatuiBorders::ALL),
         )
-        .bar_width(6)
+        .bar_width(30)
         .bar_gap(2)
         .group_gap(3)
         .label_style(RatatuiStyle::new().white());
@@ -130,11 +130,11 @@ pub fn get_reaction_count_plot_cli(
 }
 
 pub fn get_hour_plot_cli(hours: &HashMap<String, Vec<i64>>) -> RatatuiBarChart<'static> {
-    return get_histogram(hours, 10);
+    return get_histogram(hours, 24);
 }
 
 pub fn get_response_time_plot_cli(
     responses_time: &HashMap<String, Vec<i64>>,
 ) -> RatatuiBarChart<'static> {
-    return get_histogram(responses_time, 10);
+    return get_histogram(responses_time, 100);
 }

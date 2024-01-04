@@ -2,20 +2,18 @@
 name = "msg"
 version = "0.1.0"
 edition = "2021"
-default_run = "server"
+default_run = "web"
 
 [dependencies]
 chrono = "0.4.31"
-clap = { version = "4.4.11", features = ["derive"] }
-crossterm = "0.27.0"
+clap = { version = "4.4.12", features = ["derive"] }
 js-sys = "0.3.66"
 leptos = { version = "0.5.4", features = ["csr", "nightly", "template_macro"] }
 leptos_router = { version = "0.5.4", features = ["csr", "nightly"] }
 plotly = { version = "0.8.4", features = ["plotly_image", "wasm"] }
-ratatui = "0.24.0"
 regex = { version = "1.10.2", features = ["pattern"] }
-serde = { version = "1.0.193", features = ["derive"] }
-serde_json = "1.0.108"
+serde = { version = "1.0.194", features = ["derive"] }
+serde_json = "1.0.111"
 stylers = { git = "https://github.com/abishekatp/stylers" }
 wasm-bindgen-futures = "0.4.39"
 web-sys = { version = "0.3.66", features = [
@@ -24,6 +22,10 @@ web-sys = { version = "0.3.66", features = [
     "FileReader",
     "HtmlInputElement",
 ] }
+
+[target.'cfg(not(target_family = "wasm"))'.dependencies]
+ratatui = "0.24.0"
+crossterm = "0.27.0"
 
 [build-dependencies]
 stylers = { git = "https://github.com/abishekatp/stylers" }
@@ -50,13 +52,14 @@ lib-profile-release = "wasm-release"
 name = 'cli'
 test = false
 bench = false
-# target = 'cfg(target_family = "unix"))'
+target = 'cfg(not(target_family = "wasm")))'
 
 [[bin]]
 name = 'server'
 path = 'src/bin/server.rs'
 test = false
 bench = false
+target = 'cfg(target_family = "unix"))'
 
 [[bin]]
 name = 'web'
