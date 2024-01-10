@@ -44,7 +44,7 @@ pub fn main() {
                 println!("Found {:?} file", file);
                 files_data.push(read_to_string(file).expect("Unable to read file"));
             }
-            let (messages, participants) = facebook::message_parser(files_data);
+            let (messages, participants) = facebook::parse_facebook(files_data);
             println!("Found {:?} messages", messages.len());
 
             let msg_count = facebook::get_message_counts(&messages);
@@ -147,7 +147,7 @@ pub fn main() {
             disable_raw_mode().expect("Failed to disable raw mode");
 
             // TODO: Write me as a function to save parsed message data
-            create_dir_all(args.output.clone()).expect("Failed to create output directory");
+            create_dir_all(args.output).expect("Failed to create output directory");
 
             serde_json::to_writer_pretty(
                 File::create(format!("{}/{}", args.output, "msg.json"))

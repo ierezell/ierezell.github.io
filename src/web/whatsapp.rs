@@ -1,100 +1,59 @@
-use std::collections::HashSet;
-
-use crate::parsers::whatsapp::{get_counts, parse_whatsapp};
+use crate::parsers::whatsapp::parse_whatsapp;
 
 use leptos::create_action;
 
-use plotly::Bar;
-use plotly::Histogram;
-
+use crate::parsers::base::{get_message_counts, get_message_response_times, get_send_hours};
+use crate::plots::web::{get_hour_plot, get_message_count_plot, get_response_time_plot};
 use leptos::html::Input;
 use leptos::{
-    component, create_node_ref, create_resource, create_signal, logging, view, For, IntoView,
-    SignalGet, Suspense,
+    component, create_node_ref, create_resource, create_signal, view, For, IntoView, SignalGet,
+    Suspense,
 };
 use plotly::Plot;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{File, SubmitEvent};
 
-fn get_plots(data: String) -> (Plot, Plot) {
-    let messages = parse_whatsapp(data);
-    // let messages: Vec<WhatsappMessage> = Vec::new();
-    let participants = HashSet::from_iter(messages.iter().map(|m| m.sender_name.clone()));
-
-    let (msg_count, date_count) = get_counts(&messages, &participants);
-
-    let mut date_plot = Plot::new();
-    let mut msg_plot = Plot::new();
-
-    for name in msg_count.keys() {
-        msg_plot.add_trace(
-            Bar::new(["Messages"].to_vec(), [msg_count[&name.clone()]].to_vec()).name(name),
-        )
-    }
-
-    for (name, dates) in date_count.iter() {
-        date_plot.add_trace(
-            Histogram::new(dates.to_vec())
-                .x_axis("Hour")
-                .y_axis("Count")
-                .name(name),
-        );
-    }
-
-    return (date_plot, msg_plot);
-}
-
 #[component]
-fn Whatsapp(data: Option<Vec<String>>) -> impl IntoView {
+fn WhatsappData(data: Option<Vec<String>>) -> impl IntoView {
     // Render the plot, from wasm to JS to the correct DIV in the view!
     // defined bellow
     match data {
         Some(whatsapp_data) => {
-            if whatsapp_data.len() == 1 {
-                let whatsapp_text = whatsapp_data[0].clone();
-                let date_plotted = create_action(|input: &Plot| {
-                    let input = input.to_owned();
-                    async move { plotly::bindings::new_plot("DatePlot", &input).await }
-                });
-                let msg_plotted = create_action(|input: &Plot| {
-                    let input = input.to_owned();
-                    async move { plotly::bindings::new_plot("MsgPlot", &input).await }
-                });
+            let (messages, participants) = parse_whatsapp(whatsapp_data);
+            let hour_plotted = create_action(|input: &Plot| {
+                let input = input.to_owned();
+                async move { plotly::bindings::new_plot("HourPlot", &input).await }
+            });
 
-                let (date_plot, msg_plot) = get_plots(whatsapp_text);
+            let msg_plotted = create_action(|input: &Plot| {
+                let input = input.to_owned();
+                async move { plotly::bindings::new_plot("MsgPlot", &input).await }
+            });
 
-                date_plotted.dispatch(date_plot);
-                msg_plotted.dispatch(msg_plot);
+            let responses_time_plotted = create_action(|input: &Plot| {
+                let input = input.to_owned();
+                async move { plotly::bindings::new_plot("ResponsesTimePlot", &input).await }
+            });
 
-                return view! {
-                    <div>
-                        <div id="DatePlot"></div>
-                        <div id="MsgPlot"></div>
-                    </div>
-                };
-            } else if whatsapp_data.len() == 0 {
-                return view! {
-                    <div>
-                        <p>"One file please"</p>
-                    </div>
-                };
-            } else {
-                return view! {
-                    <div>
-                        <p>"Only one file please"</p>
-                    </div>
-                };
-            }
+            let base_messages = messages.into_iter().map(|m| m.base_message).collect();
+            let msg_plot = get_message_count_plot(&get_message_counts(&base_messages));
+            let hour_plot = get_hour_plot(&get_send_hours(&base_messages, &participants));
+            let responses_time_plot =
+                get_response_time_plot(&get_message_response_times(&base_messages, &participants));
+
+            hour_plotted.dispatch(hour_plot);
+            msg_plotted.dispatch(msg_plot);
+            responses_time_plotted.dispatch(responses_time_plot);
         }
+        _ => {}
+    }
 
-        _ => {
-            logging::log!("NO DATA");
-            return view! {
-                <div>
-                    <p>"No data"</p>
-                </div>
-            };
-        }
+    view! {
+        <div>
+            <div id="HourPlot"></div>
+            <div id="MsgPlot"></div>
+            <div id="ResponsesTimePlot"></div>
+        </div>
     }
 }
 
@@ -154,7 +113,7 @@ pub fn WhatsappMultiFileSelectorComponent() -> impl IntoView {
         </div>
 
         <Suspense fallback = move || view! {<p>"Loading..."</p>}>
-            <Whatsapp data={texts.get()}/>
+            <WhatsappData data={texts.get()}/>
         </Suspense>
     }
 }

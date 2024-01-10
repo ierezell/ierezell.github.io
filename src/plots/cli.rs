@@ -161,9 +161,9 @@ pub fn get_response_time_plot_cli(
         }
         let length = sorted_samples.len() - 1;
         let rank = (pct / hundred) * length as f64;
-        let lrank = rank.floor();
-        let d = rank - lrank;
-        let n = lrank as usize;
+        let left_rank = rank.floor();
+        let d = rank - left_rank;
+        let n = left_rank as usize;
         let lo = sorted_samples[n] as f64;
         let hi = sorted_samples[n + 1] as f64;
         lo + (hi - lo) * d
