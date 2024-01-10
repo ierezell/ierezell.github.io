@@ -83,12 +83,46 @@ pub fn main() {
                         .split(frame.size());
 
                     frame.render_widget(tabs.clone(), layout[0]);
+
+                    let frame_width = frame.size().width;
                     match tab_idx {
                         // TODO : Maybe here compute the bar width from the frame size... ?
-                        0 => frame.render_widget(responses_plot.clone(), layout[1]),
-                        1 => frame.render_widget(msg_plot.clone(), layout[1]),
-                        2 => frame.render_widget(reaction_plot.clone(), layout[1]),
-                        3 => frame.render_widget(hours_plot.clone(), layout[1]),
+                        0 => {
+                            let bar_width = frame_width / (15.0 * 2.5) as u16;
+                            frame.render_widget(
+                                responses_plot
+                                    .clone()
+                                    .bar_width(bar_width)
+                                    .bar_gap(bar_width / 3)
+                                    .group_gap((bar_width / 4).max(1)),
+                                layout[1],
+                            )
+                        }
+                        1 => frame.render_widget(
+                            msg_plot
+                                .clone()
+                                .bar_width(frame_width / 3)
+                                .bar_gap(frame_width / 6),
+                            layout[1],
+                        ),
+                        2 => frame.render_widget(
+                            reaction_plot
+                                .clone()
+                                .bar_width(frame_width / 3)
+                                .bar_gap(frame_width / 6),
+                            layout[1],
+                        ),
+                        3 => {
+                            let bar_width = frame_width / (24.0 * 2.5) as u16;
+                            frame.render_widget(
+                                hours_plot
+                                    .clone()
+                                    .bar_width(bar_width)
+                                    .bar_gap(bar_width / 3)
+                                    .group_gap((bar_width / 4).max(1)),
+                                layout[1],
+                            )
+                        }
                         _ => {}
                     }
                 });
