@@ -6,22 +6,28 @@ default_run = "web"
 
 [dependencies]
 chrono = "0.4.31"
-clap = { version = "4.4.12", features = ["derive"] }
-js-sys = "0.3.66"
-leptos = { version = "0.5.4", features = ["csr", "nightly", "template_macro"] }
-leptos_router = { version = "0.5.4", features = ["csr", "nightly"] }
+clap = { version = "4.4.18", features = ["derive"] }
+js-sys = "0.3.67"
+leptos = { version = "0.5.6", features = ["csr", "nightly", "template_macro"] }
+leptos_router = { version = "0.5.6", features = ["csr", "nightly"] }
 plotly = { version = "0.8.4", features = ["plotly_image", "wasm"] }
 regex = { version = "1.10.2", features = ["pattern"] }
-serde = { version = "1.0.194", features = ["derive"] }
+serde = { version = "1.0.195", features = ["derive"] }
 serde_json = "1.0.111"
 stylers = { git = "https://github.com/abishekatp/stylers" }
-wasm-bindgen-futures = "0.4.39"
-web-sys = { version = "0.3.66", features = [
+wasm-bindgen-futures = "0.4.40"
+web-sys = { version = "0.3.67", features = [
     "File",
     "FileList",
     "FileReader",
     "HtmlInputElement",
 ] }
+
+[dev-dependencies]
+firedbg-cli = "1.74.0"
+firedbg-lib = "0.1.2"
+firedbg-rust-debugger = "1.74.0"
+firedbg-rust-parser = "1.0.0"
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 ratatui = "0.24.0"

@@ -4,6 +4,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
+use msg::parsers::base::{get_message_counts, get_message_response_times, get_send_hours};
 use msg::parsers::{facebook, file};
 use msg::plots::cli::{
     get_hour_plot_cli, get_message_count_plot_cli, get_reaction_count_plot_cli,
@@ -45,12 +46,15 @@ pub fn main() {
                 files_data.push(read_to_string(file).expect("Unable to read file"));
             }
             let (messages, participants) = facebook::parse_facebook(files_data);
+
             println!("Found {:?} messages", messages.len());
 
-            let msg_count = facebook::get_message_counts(&messages);
             let reaction_count = facebook::get_reactions_counts(&messages);
-            let dates = facebook::get_send_hours(&messages, &participants);
-            let responses_time = facebook::get_message_response_times(&messages, &participants);
+            let base_messages = messages.into_iter().map(|m| m.base_message).collect();
+
+            let msg_count = get_message_counts(&base_messages);
+            let dates = get_send_hours(&base_messages, &participants);
+            let responses_time = get_message_response_times(&base_messages, &participants);
 
             let msg_plot = get_message_count_plot_cli(&msg_count);
             let reaction_plot = get_reaction_count_plot_cli(&reaction_count);
@@ -147,24 +151,24 @@ pub fn main() {
             disable_raw_mode().expect("Failed to disable raw mode");
 
             // TODO: Write me as a function to save parsed message data
-            create_dir_all(args.output).expect("Failed to create output directory");
+            create_dir_all(&args.output).expect("Failed to create output directory");
 
             serde_json::to_writer_pretty(
-                File::create(format!("{}/{}", args.output, "msg.json"))
+                File::create(format!("{}/{}", &args.output, "msg.json"))
                     .expect("Failed to create msg.json file"),
                 &msg_count,
             )
             .expect("Failed to write to msg.json");
 
             serde_json::to_writer_pretty(
-                File::create(format!("{}/{}", args.output, "reactions.json"))
+                File::create(format!("{}/{}", &args.output, "reactions.json"))
                     .expect("Failed to create msg.json file"),
                 &reaction_count,
             )
             .expect("Failed to write to msg.json");
 
             serde_json::to_writer_pretty(
-                File::create(format!("{}/{}", args.output, "dates.json"))
+                File::create(format!("{}/{}", &args.output, "dates.json"))
                     .expect("Failed to create msg.json file"),
                 &dates,
             )

@@ -21,7 +21,7 @@ pub fn parse_whatsapp(texts: Vec<String>) -> (Vec<WhatsappMessage>, HashSet<std:
     let mut timestamp = 0;
     let mut content = "".to_string();
 
-    for txt in texts {
+    for txt in &texts {
         for msg_line in txt.split("\n") {
             if date_name_header_regex.is_match(msg_line) {
                 if name != "" {
