@@ -26,7 +26,9 @@ struct FacebookPhoto {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FacebookMessage {
-    pub base_message: BaseMessage,
+    sender_name: String,
+    pub timestamp_ms: i64,
+    content: Option<String>,
     photos: Option<Vec<FacebookPhoto>>,
     reactions: Option<Vec<FacebookReaction>>,
     shares: Option<FacebookShare>,
@@ -46,7 +48,11 @@ pub struct FacebookMessenger {
 
 impl Into<BaseMessage> for FacebookMessage {
     fn into(self) -> BaseMessage {
-        self.base_message
+        return BaseMessage {
+            content: self.content,
+            sender_name: self.sender_name,
+            timestamp_ms: self.timestamp_ms,
+        };
     }
 }
 
@@ -64,11 +70,7 @@ pub fn parse_facebook(files: Vec<String>) -> (Vec<FacebookMessage>, HashSet<std:
         }
     }
 
-    messages.sort_by(|a, b| {
-        a.base_message
-            .timestamp_ms
-            .cmp(&b.base_message.timestamp_ms)
-    });
+    messages.sort_by(|a, b| a.timestamp_ms.cmp(&b.timestamp_ms));
 
     return (messages, participants);
 }
@@ -77,7 +79,7 @@ pub fn get_reactions_counts(messages: &Vec<FacebookMessage>) -> HashMap<String, 
     let mut reaction_count = HashMap::new();
 
     for msg in messages {
-        let sender = msg.base_message.sender_name.clone();
+        let sender = msg.sender_name.clone();
 
         if let Some(reactions) = &msg.reactions {
             for reaction in reactions {

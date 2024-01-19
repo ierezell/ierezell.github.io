@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+use std::fs::{create_dir_all, File};
 use std::path::Path;
 pub fn facebook_file_parser(folder: &String, name: &String) -> Vec<String> {
     let mut correct_paths: Vec<String> = [].to_vec();
@@ -31,4 +33,34 @@ pub fn facebook_file_parser(folder: &String, name: &String) -> Vec<String> {
         }
     }
     return correct_paths;
+}
+
+pub fn save_results(
+    output: &String,
+    msg_count: HashMap<String, i32>,
+    reaction_count: HashMap<String, i32>,
+    dates: HashMap<String, Vec<i32>>,
+) {
+    // TODO: Write me as a function to save parsed message data
+    create_dir_all(output).expect("Failed to create output directory");
+
+    serde_json::to_writer_pretty(
+        File::create(format!("{}/{}", output, "msg.json")).expect("Failed to create msg.json file"),
+        &msg_count,
+    )
+    .expect("Failed to write to msg.json");
+
+    serde_json::to_writer_pretty(
+        File::create(format!("{}/{}", output, "reactions.json"))
+            .expect("Failed to create msg.json file"),
+        &reaction_count,
+    )
+    .expect("Failed to write to msg.json");
+
+    serde_json::to_writer_pretty(
+        File::create(format!("{}/{}", output, "dates.json"))
+            .expect("Failed to create msg.json file"),
+        &dates,
+    )
+    .expect("Failed to write to msg.json");
 }

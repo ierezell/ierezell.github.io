@@ -4,16 +4,27 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
-use msg::parsers::base::{get_message_counts, get_message_response_times, get_send_hours};
-use msg::parsers::{facebook, file};
-use msg::plots::cli::{
-    get_hour_plot_cli, get_message_count_plot_cli, get_reaction_count_plot_cli,
-    get_response_time_plot_cli,
+use msg::{
+    parsers::base::{
+        get_frequent_words, get_message_counts, get_message_response_times, get_send_hours,
+    },
+    plots::cli::get_word_plot_cli,
+};
+use msg::{
+    parsers::base::{get_messages_length, get_messages_num},
+    plots::cli::{
+        get_hour_plot_cli, get_message_count_plot_cli, get_message_num_plot_cli,
+        get_reaction_count_plot_cli, get_response_time_plot_cli,
+    },
+};
+use msg::{
+    parsers::{facebook, file},
+    plots::cli::get_message_length_plot_cli,
 };
 use ratatui::prelude::{Constraint, CrosstermBackend, Direction, Layout, Style, Terminal};
 use ratatui::symbols;
 use ratatui::widgets::{Block, Borders, Tabs};
-use std::fs::{create_dir_all, read_to_string, File};
+use std::fs::read_to_string;
 use std::io::stdout;
 
 // Cli to parse facebook or whatsapp messages from local files.
@@ -50,16 +61,19 @@ pub fn main() {
             println!("Found {:?} messages", messages.len());
 
             let reaction_count = facebook::get_reactions_counts(&messages);
-            let base_messages = messages.into_iter().map(|m| m.base_message).collect();
+            let base_messages = messages.into_iter().map(|m| m.into()).collect();
 
-            let msg_count = get_message_counts(&base_messages);
-            let dates = get_send_hours(&base_messages, &participants);
-            let responses_time = get_message_response_times(&base_messages, &participants);
-
-            let msg_plot = get_message_count_plot_cli(&msg_count);
+            let msg_plot = get_message_count_plot_cli(&get_message_counts(&base_messages));
             let reaction_plot = get_reaction_count_plot_cli(&reaction_count);
-            let hours_plot = get_hour_plot_cli(&dates);
-            let responses_plot = get_response_time_plot_cli(&responses_time);
+            let hours_plot = get_hour_plot_cli(&get_send_hours(&base_messages, &participants));
+            let responses_plot = get_response_time_plot_cli(&get_message_response_times(
+                &base_messages,
+                &participants,
+            ));
+            let message_num_plot = get_message_length_plot_cli(&get_messages_num(&base_messages));
+            let message_length_plot =
+                get_message_num_plot_cli(&get_messages_length(&base_messages));
+            let words = get_frequent_words(&base_messages, 30);
 
             stdout()
                 .execute(EnterAlternateScreen)
@@ -71,7 +85,18 @@ pub fn main() {
                 Terminal::new(CrosstermBackend::new(stdout())).expect("Failed to create terminal");
             terminal.clear().expect("Failed to clear terminal");
 
-            let tabs = Tabs::new(vec!["Response", "Message", "Reactions", "Hours"])
+            // TODO : Reformat tabs with a hashmap
+            let tabs_name = vec![
+                "Response",
+                "Message",
+                "Reactions",
+                "Hours",
+                "Words",
+                "Num",
+                "Length",
+            ];
+            let tabs_len = tabs_name.len();
+            let tabs = Tabs::new(tabs_name)
                 .block(Block::default().title("Tabs").borders(Borders::ALL))
                 .style(Style::default())
                 .highlight_style(Style::default())
@@ -127,6 +152,38 @@ pub fn main() {
                                 layout[1],
                             )
                         }
+                        4 => {
+                            let paragraphs = get_word_plot_cli(&words);
+                            let word_layout = Layout::default()
+                                .direction(Direction::Horizontal)
+                                .constraints(vec![
+                                    Constraint::Percentage(
+                                        100 / paragraphs.len() as u16
+                                    );
+                                    paragraphs.len()
+                                ])
+                                .split(layout[1]);
+                            // We know there is only 2 participants.
+                            for (i, paragraph) in paragraphs.iter().enumerate() {
+                                frame.render_widget(paragraph.clone(), word_layout[i]);
+                            }
+                        }
+                        5 => frame.render_widget(
+                            message_num_plot
+                                .clone()
+                                .bar_width(3)
+                                .bar_gap(1)
+                                .group_gap(2),
+                            layout[1],
+                        ),
+                        6 => frame.render_widget(
+                            message_length_plot
+                                .clone()
+                                .bar_width(3)
+                                .bar_gap(1)
+                                .group_gap(2),
+                            layout[1],
+                        ),
                         _ => {}
                     }
                 });
@@ -137,7 +194,7 @@ pub fn main() {
                         if key.kind == KeyEventKind::Press {
                             match key.code {
                                 KeyCode::Char('q') => break,
-                                KeyCode::Tab => tab_idx = (tab_idx + 1) % 4,
+                                KeyCode::Tab => tab_idx = (tab_idx + 1) % tabs_len,
                                 _ => {}
                             }
                         }
@@ -149,30 +206,6 @@ pub fn main() {
                 .execute(LeaveAlternateScreen)
                 .expect("Failed to leave alternate screen");
             disable_raw_mode().expect("Failed to disable raw mode");
-
-            // TODO: Write me as a function to save parsed message data
-            create_dir_all(&args.output).expect("Failed to create output directory");
-
-            serde_json::to_writer_pretty(
-                File::create(format!("{}/{}", &args.output, "msg.json"))
-                    .expect("Failed to create msg.json file"),
-                &msg_count,
-            )
-            .expect("Failed to write to msg.json");
-
-            serde_json::to_writer_pretty(
-                File::create(format!("{}/{}", &args.output, "reactions.json"))
-                    .expect("Failed to create msg.json file"),
-                &reaction_count,
-            )
-            .expect("Failed to write to msg.json");
-
-            serde_json::to_writer_pretty(
-                File::create(format!("{}/{}", &args.output, "dates.json"))
-                    .expect("Failed to create msg.json file"),
-                &dates,
-            )
-            .expect("Failed to write to msg.json");
         }
         _ => {
             panic!("Unknown kind");

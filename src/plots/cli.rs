@@ -1,7 +1,8 @@
-use ratatui::style::{Color as RatatuiColor, Style as RatatuiStyle, Stylize};
+use ratatui::style::{Color as RatatuiColor, Modifier, Style as RatatuiStyle, Stylize};
+use ratatui::text::Span;
 use ratatui::widgets::{
     Bar as RatatuiBar, BarChart as RatatuiBarChart, BarGroup as RatatuiBarGroup,
-    Block as RatatuiBlock, Borders as RatatuiBorders,
+    Block as RatatuiBlock, Borders as RatatuiBorders, Paragraph,
 };
 use std::collections::{BTreeMap, HashMap};
 
@@ -144,9 +145,25 @@ pub fn get_hour_plot_cli(hours: &HashMap<String, Vec<i64>>) -> RatatuiBarChart<'
     );
 }
 
+pub fn get_message_length_plot_cli(length: &HashMap<String, Vec<i64>>) -> RatatuiBarChart<'static> {
+    return get_histogram(length, 10).block(
+        RatatuiBlock::default()
+            .title("Length")
+            .borders(RatatuiBorders::ALL),
+    );
+}
+pub fn get_message_num_plot_cli(num: &HashMap<String, Vec<i64>>) -> RatatuiBarChart<'static> {
+    return get_histogram(num, 10).block(
+        RatatuiBlock::default()
+            .title("Num")
+            .borders(RatatuiBorders::ALL),
+    );
+}
+
 pub fn get_response_time_plot_cli(
     responses_time: &HashMap<String, Vec<i64>>,
 ) -> RatatuiBarChart<'static> {
+    // TODO : EXTRACT ME TO BE USED IN WEB TOO
     fn percentile_of_sorted(sorted_samples: &[i64], pct: f64) -> f64 {
         assert!(!sorted_samples.is_empty());
         if sorted_samples.len() == 1 {
@@ -180,9 +197,30 @@ pub fn get_response_time_plot_cli(
 
         filtered_response_times.insert(name.clone(), filtered_response_time);
     }
+    // TODO : END TODO
+
     return get_histogram(&filtered_response_times, 15).block(
         RatatuiBlock::default()
             .title("Response time")
             .borders(RatatuiBorders::ALL),
     );
+}
+
+pub fn get_word_plot_cli(words: &HashMap<String, Vec<String>>) -> Vec<Paragraph> {
+    let mut paragraphs: Vec<Paragraph> = Vec::new();
+
+    let create_block = |title: &String| {
+        RatatuiBlock::default()
+            .borders(RatatuiBorders::ALL)
+            .style(RatatuiStyle::default().fg(RatatuiColor::Gray))
+            .title(Span::styled(
+                title.clone(),
+                RatatuiStyle::default().add_modifier(Modifier::BOLD),
+            ))
+    };
+
+    for (name, w) in words.iter() {
+        paragraphs.push(Paragraph::new(w.join("\n")).block(create_block(name)));
+    }
+    return paragraphs;
 }

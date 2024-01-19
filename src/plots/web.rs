@@ -77,3 +77,37 @@ pub fn get_response_time_plot(responses_time: &HashMap<String, Vec<i64>>) -> Plo
 
     return responses_time_plot;
 }
+
+pub fn get_message_num_plot(messages_num: &HashMap<String, Vec<i64>>) -> Plot {
+    let mut messages_num_plot = Plot::new();
+    for (name, times) in messages_num.iter() {
+        messages_num_plot.add_trace(
+            Histogram::new(times.to_vec())
+                .x_axis("Number of back to back messages")
+                .y_axis("Count")
+                .name(name),
+        );
+    }
+    let time_layout = Layout::new().title(Title::new("Average number of back to back messages."));
+
+    messages_num_plot.set_layout(time_layout);
+
+    return messages_num_plot;
+}
+
+pub fn get_message_length_plot(messages_length: &HashMap<String, Vec<i64>>) -> Plot {
+    let mut messages_length_plot = Plot::new();
+    for (name, times) in messages_length.iter() {
+        messages_length_plot.add_trace(
+            Histogram::new(times.to_vec())
+                .x_axis("Length")
+                .y_axis("Count")
+                .name(name),
+        );
+    }
+    let time_layout = Layout::new().title(Title::new("Average message length."));
+
+    messages_length_plot.set_layout(time_layout);
+
+    return messages_length_plot;
+}
