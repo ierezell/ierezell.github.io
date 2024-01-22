@@ -108,7 +108,7 @@ mod tests {
     #[test]
     fn test_message_numbers() {
         let (messages, participants) = parse_facebook(vec![read_to_string(String::from(
-            "./tests/assets/test_message_numbers.json",
+            "./tests/assets/message_1.json",
         ))
         .unwrap()]);
         assert_eq!(messages.len(), 9519);
@@ -118,7 +118,7 @@ mod tests {
     #[test]
     fn test_message_numbers_2() {
         let (messages, participants) = parse_facebook(vec![read_to_string(String::from(
-            "./tests/assets/test_message_numbers_2.json",
+            "./tests/assets/message_2.json",
         ))
         .unwrap()]);
         assert_eq!(messages.len(), 16);
