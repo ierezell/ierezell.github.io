@@ -1,8 +1,7 @@
 use chrono::NaiveDate;
-use reqwest;
 use leptos::logging::error;
 use pulldown_cmark::{Options, Parser};
-use std::{collections::HashMap, fs};
+use reqwest;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,72 +34,57 @@ pub struct ReadFile {
     pub error: Option<String>,
 }
 
-pub fn read_markdown_files(dir_path: &str) -> Result<Vec<ReadFile>, String> {
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GitHubFile {
+    name: String,
+    path: String,
+    sha: String,
+    size: i32,
+    url: String,
+    html_url: String,
+    git_url: String,
+    download_url: String,
+    #[serde(rename = "type")]
+    kind: String,
+}
+
+pub async fn read_markdown_files() -> Result<Vec<ReadFile>, String> {
     let mut markdown_files: Vec<ReadFile> = Vec::new();
 
     let posts_url = "https://api.github.com/repos/ierezell/ierezell.github.io/contents/posts";
 
-    let body = match reqwest::blocking::get(posts_url){
-        Ok(body) => body.json::<HashMap<String, String>>(),
+    let body = match reqwest::get(posts_url).await {
+        Ok(body) => match body.json::<Vec<GitHubFile>>().await {
+            Ok(body) => body,
+            Err(error) => return Err(error.to_string()),
+        },
         Err(error) => return Err(error.to_string()),
     };
 
-    
-    let paths = match fs::read_dir(dir_path) {
-        Ok(paths) => paths,
-        Err(error) => return Err(error.to_string()),
-    };
-
-    for file_path in paths {
-        let file = match file_path {
-            Ok(file) => file.path(),
-            Err(error) => {
-                markdown_files.push(ReadFile {
-                    name: "".to_string(),
+    for github_markdown in body {
+        if github_markdown.kind == "file" && github_markdown.name.ends_with(".md") {
+            match reqwest::get(github_markdown.download_url).await {
+                Ok(body) => match body.text().await {
+                    Ok(text) => markdown_files.push(ReadFile {
+                        name: github_markdown.name,
+                        content: Some(text),
+                        error: None,
+                    }),
+                    Err(error) => markdown_files.push(ReadFile {
+                        name: github_markdown.name,
+                        content: None,
+                        error: Some(error.to_string()),
+                    }),
+                },
+                Err(error) => markdown_files.push(ReadFile {
+                    name: github_markdown.name,
                     content: None,
                     error: Some(error.to_string()),
-                });
-                continue;
-            }
-        };
-
-        if file.is_file() {
-            let file_path = file.display().to_string();
-            let extension = match file.extension() {
-                Some(ext) => ext,
-                _ => {
-                    markdown_files.push(ReadFile {
-                        name: file_path.clone(),
-                        content: None,
-                        error: Some(
-                            format!("Could not get extension of file {}", file_path.clone())
-                                .to_string(),
-                        ),
-                    });
-                    continue;
-                }
+                }),
             };
-
-            if extension == "md" {
-                let content = match fs::read_to_string(file) {
-                    Ok(content) => content,
-                    _ => {
-                        markdown_files.push(ReadFile {
-                            name: file_path.clone(),
-                            content: None,
-                            error: Some(format!("Failed to read file {}", file_path).clone()),
-                        });
-                        continue;
-                    }
-                };
-                markdown_files.push(ReadFile {
-                    name: file_path.clone(),
-                    error: None,
-                    content: Some(content),
-                });
-            }
-        }
+        };
     }
+
     Ok(markdown_files)
 }
 
@@ -159,8 +143,8 @@ pub fn markdown_to_html(markdown: String) -> Result<Option<(Metadatas, String)>,
     }
 }
 
-pub fn load_markdown() -> Vec<Post> {
-    let markdown_files = match read_markdown_files("path/to/markdown/folder") {
+pub async fn load_markdown() -> Vec<Post> {
+    let markdown_files = match read_markdown_files().await {
         Ok(files) => files,
         Err(err) => {
             error!("Error reading blog posts {}", err);
@@ -201,4 +185,3 @@ pub fn load_markdown() -> Vec<Post> {
 
     return parsed_posts;
 }
-

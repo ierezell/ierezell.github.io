@@ -5,14 +5,13 @@ use crate::web::blog::markdown::Post;
 #[component]
 pub fn BlogList(posts: Vec<Post>) -> impl IntoView {
     // Show the list of blog posts, with their title date and description
-
     view! {
       <div>
           <ul>
               {
                 posts.into_iter().map(|post| view! {
                   <li>
-                    <a href=format!("/post/{}", post.title)>{ &post.title }</a>
+                    <a href=format!("/blog/{}", post.title)>{ &post.title }</a>
                     <p>{ post.description }</p>
                     <p>{ format!("{}", post.date) }</p>
                   </li>
