@@ -37,4 +37,7 @@
         "repo",
         "tests"
     ],
+    "rust-analyzer.linkedProjects": [
+        "./Cargo.toml"
+    ],
 }

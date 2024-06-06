@@ -1,3 +1,4 @@
 pub mod app;
-pub mod facebook;
-pub mod whatsapp;
+pub mod parsers;
+pub mod blog;
+pub mod home;

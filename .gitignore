@@ -4,7 +4,6 @@
 # will have compiled files and executables
 /target/
 pkg
-Cargo.lock
 
 # Personal files for test
 *.json

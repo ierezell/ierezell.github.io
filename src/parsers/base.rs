@@ -1,6 +1,5 @@
+use chrono::{DateTime, Timelike};
 use serde::{Deserialize, Serialize};
-
-use chrono::prelude::{NaiveDateTime, Timelike};
 
 use std::collections::{HashMap, HashSet};
 
@@ -481,7 +480,7 @@ pub fn get_send_hours(
         let sender = msg.sender_name.clone();
 
         if let Some(hours_for_user) = message_hours.get_mut(&sender) {
-            if let Some(datetime) = NaiveDateTime::from_timestamp_millis(msg.timestamp_ms) {
+            if let Some(datetime) = DateTime::from_timestamp_millis(msg.timestamp_ms) {
                 hours_for_user.push(datetime.hour() as i64);
             }
         }

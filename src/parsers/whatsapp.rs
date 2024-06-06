@@ -42,6 +42,7 @@ pub fn parse_whatsapp(texts: Vec<String>) -> (Vec<WhatsappMessage>, HashSet<std:
 
                 timestamp = NaiveDateTime::parse_from_str(date, "%d/%m/%Y, %H:%M")
                     .expect("Failed to parse date")
+                    .and_utc()
                     .timestamp_millis();
 
                 name = captures.name("name").expect("No name").as_str();

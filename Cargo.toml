@@ -5,36 +5,36 @@ edition = "2021"
 default_run = "web"
 
 [dependencies]
-chrono = "0.4.31"
-clap = { version = "4.4.18", features = ["derive"] }
-js-sys = "0.3.67"
-leptos = { version = "0.5.6", features = ["csr", "nightly", "template_macro"] }
-leptos_router = { version = "0.5.6", features = ["csr", "nightly"] }
+chrono = {version="0.4.38", features = ["serde"] }
+clap = { version = "4.5.4", features = ["derive"] }
+js-sys = "0.3.69"
+leptos = { version="0.6.11", features = ["csr", "nightly"] }
+leptos_i18n = {version = "0.3.3", features = ["csr"] }
+leptos_router = { version = "0.6.11", features = ["csr", "nightly"] }
 plotly = { version = "0.8.4", features = ["plotly_image", "wasm"] }
-regex = { version = "1.10.2", features = ["pattern"] }
-serde = { version = "1.0.195", features = ["derive"] }
-serde_json = "1.0.111"
-stylers = { git = "https://github.com/abishekatp/stylers" }
-wasm-bindgen-futures = "0.4.40"
-web-sys = { version = "0.3.67", features = [
+regex = { version = "1.10.4" }
+serde = { version = "1.0.203", features = ["derive"] }
+serde_json = "1.0.117"
+time = "0.3.36"
+
+stylers = {git = "https://github.com/abishekatp/stylers"}
+wasm-bindgen-futures = "0.4.42"
+web-sys = { version = "0.3.69", features = [
     "File",
     "FileList",
     "FileReader",
     "HtmlInputElement",
 ] }
+pulldown-cmark = "0.11.0"
+reqwest = {version="0.12.4", features = ["blocking", "json"] }
 
-[dev-dependencies]
-firedbg-cli = "1.74.0"
-firedbg-lib = "0.1.2"
-firedbg-rust-debugger = "1.74.0"
-firedbg-rust-parser = "1.0.0"
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
-ratatui = "0.24.0"
+ratatui = "0.26.3"
 crossterm = "0.27.0"
 
 [build-dependencies]
-stylers = { git = "https://github.com/abishekatp/stylers" }
+stylers = {git = "https://github.com/abishekatp/stylers"}
 
 [lib]
 name = "msg"
@@ -53,6 +53,14 @@ codegen-units = 1
 
 [package.metadata.leptos]
 lib-profile-release = "wasm-release"
+
+[package.metadata.leptonic]
+# REQUIRED: Leptonic's build-script will copy the Leptonic themes to this directory.
+style-dir = "style"
+
+# REQUIRED: Leptonic's build-script will copy static JS dependencies to this directory.
+js-dir = "public/js"
+
 
 [[bin]]
 name = 'cli'
