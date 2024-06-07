@@ -4,8 +4,10 @@ use crate::web::home::Home;
 use crate::web::parsers::facebook::FacebookMultiFileSelectorComponent;
 use crate::web::parsers::whatsapp::WhatsappMultiFileSelectorComponent;
 use crate::web::parsers::Parsers;
-use leptos::{component, create_resource, view, IntoView, SignalGet, Params};
-use leptos_router::{Route, Router, Routes, A, use_params, Params};
+// use leptos::{component, create_resource, view, IntoView, SignalGet, Params};
+// use leptos_router::{Route, Router, Routes, A, use_params, Params};
+use leptos::*;
+use leptos_router::*;
 use stylers::style;
 
 #[derive(Params, PartialEq)]
@@ -44,43 +46,48 @@ pub fn App() -> impl IntoView {
             <main>
                 <Routes>
                     <Route path="/" view=Home/>
-                    <Route path="/blog" view=move || {
+                    <Route path="/blogs" view=move || {
                         view!{
                             <h1>"Blog"</h1>
                             {
                                 move || match async_posts.get() {
-                                    None => view!{<h1>"Loading..."</h1>}.into_view(), 
+                                    None => view!{<h1>"Loading blogs..."</h1>}.into_view(), 
                                     Some(data) => view!{<BlogList posts=data/>}.into_view()
                                 }
 
                             }
                         }
-                    }/>
-                    <Route path="/blog/:title" view=move || {
-                        let params = use_params::<TitleParams>();
-                        let title = move ||{
-                            params.with(|params| {
-                                params.as_ref()
-                                   .map(|params| params.title)
-                                   .unwrap_or_default()
-                            })
-            };
-                        view!{
-                            <h1>"Blog"</h1>
-                            {
-                                move || match async_posts.get() {
-                                    None => view!{<h1>"Loading..."</h1>}.into_view(), 
-                                    Some(data) => {
-                                        // get the post that correspond to the title
-                                        let post = data .iter() .find(|post| post.title == title);
-                                            
-                                        return view!{<BlogPost post=post/>}.into_view();
-                                    }
-                                }
+                    }>
+                        <Route path=":title" view=move || {
+                            let params = use_params::<TitleParams>();
+                            let title = move ||{
+                                params.with(|params| {
+                                    params.as_ref()
+                                       .map(|params| params.title.clone())
+                                       .unwrap_or_default()
+                                })
+                            };
+                            view!{
+                                <h1>"Blog"</h1>
+                                {
+                                    move || match async_posts.get() {
+                                        None => view!{<h1>"Loading blogs..."</h1>}.into_view(), 
+                                        Some(data) => {
+                                            // get the post that correspond to the title
+                                            let post = data.iter().find(|post| post.title == title());
+                                            match post{
+                                            Some(p) => view!{<BlogPost post=p.clone()/>}.into_view(),
+                                            _ => view!{<h1>"Post not found"</h1>}.into_view(),
 
+                                            }
+                                        }
+                                    }
+
+                                }
                             }
-                        }
-                    }/>
+                        }/>
+                        <Route path="" view=|| view! { <div class="select-user"> "Select a blog to see it." </div> }/>
+                    </Route>
                     <Route path="/parser" view=Parsers>
                         <Route path="facebook" view=FacebookMultiFileSelectorComponent/>
                         <Route path="whatsapp" view=WhatsappMultiFileSelectorComponent/>

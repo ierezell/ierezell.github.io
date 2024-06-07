@@ -8,8 +8,8 @@ default_run = "web"
 chrono = {version="0.4.38", features = ["serde"] }
 clap = { version = "4.5.4", features = ["derive"] }
 js-sys = "0.3.69"
-leptos = { version="0.6.11", features = ["csr", "nightly"] }
-leptos_i18n = {version = "0.3.3", features = ["csr"] }
+leptos = { version="0.6.11", features = ["csr", "nightly", "serde"] }
+# leptos_i18n = {version = "0.3.3", features = ["csr"] }
 leptos_router = { version = "0.6.11", features = ["csr", "nightly"] }
 plotly = { version = "0.8.4", features = ["plotly_image", "wasm"] }
 regex = { version = "1.10.4" }

@@ -1,3 +1,5 @@
+use std::env;
+
 use chrono::NaiveDate;
 use leptos::logging::error;
 use pulldown_cmark::{Options, Parser};
@@ -51,7 +53,11 @@ pub struct GitHubFile {
 pub async fn read_markdown_files() -> Result<Vec<ReadFile>, String> {
     let mut markdown_files: Vec<ReadFile> = Vec::new();
 
-    let posts_url = "https://api.github.com/repos/ierezell/ierezell.github.io/contents/posts";
+    let posts_url = if env::var("DEBUG").is_ok() {
+        "http://127.0.0.1:9999"
+    } else {
+        "https://api.github.com/repos/ierezell/ierezell.github.io/contents/posts"
+    };
 
     let body = match reqwest::get(posts_url).await {
         Ok(body) => match body.json::<Vec<GitHubFile>>().await {
