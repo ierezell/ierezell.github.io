@@ -39,7 +39,7 @@ pub fn App() -> impl IntoView {
                     <nav>
                         <A href="/">Home</A>
                         <A href="/parser">Parsers</A>
-                        <A href="/blog">Blog</A>
+                        <A href="/blogs">Blog</A>
                     </nav>
                 </div>
             </header>

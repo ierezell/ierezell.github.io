@@ -1,7 +1,7 @@
 use std::env;
 
 use chrono::NaiveDate;
-use leptos::logging::error;
+use leptos::logging::{error, log};
 use pulldown_cmark::{Options, Parser};
 use reqwest;
 use serde::{Deserialize, Serialize};
@@ -59,6 +59,8 @@ pub async fn read_markdown_files() -> Result<Vec<ReadFile>, String> {
         "https://api.github.com/repos/ierezell/ierezell.github.io/contents/posts"
     };
 
+    log!("Downloading from {}", posts_url);
+
     let body = match reqwest::get(posts_url).await {
         Ok(body) => match body.json::<Vec<GitHubFile>>().await {
             Ok(body) => body,
@@ -91,6 +93,8 @@ pub async fn read_markdown_files() -> Result<Vec<ReadFile>, String> {
         };
     }
 
+    
+    log!("Downloaded {:?}", markdown_files);
     Ok(markdown_files)
 }
 

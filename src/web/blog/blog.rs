@@ -1,6 +1,6 @@
 use leptos::{component, view, IntoView};
+use leptos_router::Outlet;
 use crate::web::blog::markdown::Post;
-
 
 #[component]
 pub fn BlogList(posts: Vec<Post>) -> impl IntoView {
@@ -11,19 +11,20 @@ pub fn BlogList(posts: Vec<Post>) -> impl IntoView {
               {
                 posts.into_iter().map(|post| view! {
                   <li>
-                    <a href=format!("/blog/{}", post.title)>{ &post.title }</a>
+                    <a href=format!("/blogs/{}", post.title)>{ &post.title }</a>
                     <p>{ post.description }</p>
                     <p>{ format!("{}", post.date) }</p>
                   </li>
                 }).collect::<Vec<_>>()
               } 
           </ul>
+          <Outlet/>
       </div>
     }
 }
+
 #[component]
 pub fn BlogPost(post: Post) -> impl IntoView {
-    // Show the detail of one specific blog post
     view! {
         <div>
             <h1>{ post.title }</h1>
